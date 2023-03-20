@@ -1,0 +1,13 @@
+
+
+container:
+ image: 
+  repository: alinapodryabinkina/python
+  pullPolicy: Always
+  tag: "155"
+
+replicaCount: 2
+
+ingress: 
+  enabled: true
+

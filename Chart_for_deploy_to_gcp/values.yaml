@@ -1,0 +1,14 @@
+
+
+container:
+ image: 
+  repository: europe-central2-docker.pkg.dev/my-project-from-python/docker-repo/k8spyflask-06
+  tag: "139"
+
+replicaCount: 2
+
+ingress: 
+  enabled: true
+
+
+

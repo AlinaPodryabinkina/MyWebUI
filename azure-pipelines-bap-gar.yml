@@ -1,0 +1,44 @@
+# Build and Push Python Image to Google Cloud Platform
+
+
+variables:
+ GOOGLE_APPLICATION_CREDENTIALS: $(downfiles.secureFilePath)
+
+ 
+trigger: none
+
+
+jobs:
+  - job: Build
+    displayName: Build and Push an image
+    pool:
+      vmImage: ubuntu-latest
+ 
+
+    steps:
+    - task: DownloadSecureFile@1
+      name: downfiles
+      displayName: 'Download key'
+      inputs:
+        secureFile: 'key_for_py.json'
+        
+    - task: Bash@3
+      displayName: Auth
+      inputs:
+        targetType: 'inline'
+        script: docker login -u _json_key --password-stdin https://europe-central2-docker.pkg.dev < $(downfiles.secureFilePath)
+
+      
+    - task: Bash@3
+      displayName: Build
+      inputs:
+        targetType: 'inline'
+        script: |-
+          cd $(Build.SourcesDirectory)/application/
+          docker build . -t europe-central2-docker.pkg.dev/$(PROJECT_ID)/docker-repo/$(IMAGE_NAME):$(Build.BuildId) 
+    
+    - task: Bash@3
+      displayName: Push
+      inputs:
+        targetType: 'inline'
+        script: docker push europe-central2-docker.pkg.dev/$(PROJECT_ID)/docker-repo/$(IMAGE_NAME):$(Build.BuildId)

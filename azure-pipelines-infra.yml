@@ -1,0 +1,60 @@
+variables:
+ GOOGLE_APPLICATION_CREDENTIALS: $(downfiles.secureFilePath)
+
+trigger: none
+
+jobs:
+ - job: provision_k8s
+   pool:
+     vmImage: ubuntu-latest
+
+   steps:
+
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
+
+    - task: DownloadSecureFile@1
+      name: downfiles
+      displayName: 'Download key'
+      inputs:
+        secureFile: 'key_for_py.json'
+
+    - task: TerraformCLI@0
+      displayName: 'Terraform init'
+      inputs:
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
+        allowTelemetryCollection: true
+
+
+    - task: TerraformCLI@0
+      displayName: 'Terraform validate'
+      inputs:
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
+        allowTelemetryCollection: true
+
+    - task: TerraformCLI@0
+      displayName: 'Terraform plan'
+      inputs:
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
+        allowTelemetryCollection: true
+
+    - task: TerraformCLI@0
+      displayName: 'Terraform apply'
+      inputs:
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
+        allowTelemetryCollection: true
+        providerGoogleProject: 'my-project-from-Python'
+        providerGoogleRegion: 'europe-central2'
+
+    - task: TerraformCLI@0
+      displayName: 'Terraform destroy'
+      inputs:
+        command: 'destroy'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
+        allowTelemetryCollection: true
+      condition:  eq(variables['Destroy'], 'true')
